@@ -4,7 +4,7 @@ A clean, production-quality task management app built with React, TypeScript, an
 
 ## Live Demo
 
-[View deployed app →]()
+[View deployed app →](https://task-dashboard-beryl-five.vercel.app)
 
 ## Screenshots
 
@@ -104,7 +104,7 @@ src/
 
 ```bash
 # Clone the repo
-git clone https://github.com/saibingi/task-dashboard.git
+git clone https://github.com/SaiBingi/task-dashboard.git
 cd task-dashboard
 
 # Install dependencies
