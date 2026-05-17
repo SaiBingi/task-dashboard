@@ -1,0 +1,37 @@
+.tasklist--list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tasklist--card {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.tasklist__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: 64px var(--space-4);
+  text-align: center;
+}
+
+.tasklist__empty-icon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.tasklist__empty-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.tasklist__empty-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
