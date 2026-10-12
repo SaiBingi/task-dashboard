@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { toggleTaskStatus } from "../../features/tasks/tasksSlice";
+import { saveTaskToFirestore } from "../../hooks/useFirestoreTasks";
 import { formatDate, isOverdue } from "../../utils/taskUtils";
 import { PRIORITY_LABELS } from "../../constants";
 import type { Task } from "../../types/task";
@@ -10,6 +11,7 @@ interface TaskItemProps {
   task: Task;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  userId: string;
   dragHandleRef?: (node: HTMLElement | null) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLElement>;
   isDragging?: boolean;
@@ -19,6 +21,7 @@ export default function TaskItem({
   task,
   onEdit,
   onDelete,
+  userId,
   dragHandleRef,
   dragHandleProps,
   isDragging = false,
@@ -26,24 +29,22 @@ export default function TaskItem({
   const dispatch = useDispatch();
   const overdue = isOverdue(task.dueDate, task.status);
 
-  function handleToggle() {
+  async function handleToggle() {
+    const newStatus = task.status === "pending" ? "completed" : "pending";
     dispatch(toggleTaskStatus(task.id));
+    await saveTaskToFirestore(userId, { ...task, status: newStatus });
 
     const toastId = `toggle-${task.id}`;
-    const isCompleting = task.status === "pending";
-    const message = isCompleting
-      ? "Task marked as completed"
-      : "Task marked as pending";
-    const type = isCompleting ? "success" : "info";
+    const message =
+      newStatus === "completed"
+        ? "Task marked as completed"
+        : "Task marked as pending";
+    const type = newStatus === "completed" ? "success" : "info";
 
     if (toast.isActive(toastId)) {
-      toast.update(toastId, {
-        render: message,
-        type,
-        autoClose: 2500,
-      });
+      toast.update(toastId, { render: message, type, autoClose: 2000 });
     } else {
-      toast[type](message, { toastId, autoClose: 2500 });
+      toast[type](message, { toastId, autoClose: 2000 });
     }
   }
 
@@ -58,6 +59,7 @@ export default function TaskItem({
         <span
           ref={dragHandleRef}
           className="task-item__drag-handle"
+          aria-label="Drag to reorder"
           title="Drag to reorder"
           {...dragHandleProps}
         >
@@ -70,7 +72,7 @@ export default function TaskItem({
           task.status === "completed" ? "task-item__check--done" : ""
         }`}
         onClick={handleToggle}
-        title={
+        aria-label={
           task.status === "completed" ? "Mark as pending" : "Mark as completed"
         }
       >
@@ -116,6 +118,7 @@ export default function TaskItem({
         <button
           className="task-item__action-btn"
           onClick={() => onEdit(task.id)}
+          aria-label="Edit task"
           title="Edit task"
         >
           <EditIcon />
@@ -123,6 +126,7 @@ export default function TaskItem({
         <button
           className="task-item__action-btn task-item__action-btn--danger"
           onClick={() => onDelete(task.id)}
+          aria-label="Delete task"
           title="Delete task"
         >
           <DeleteIcon />

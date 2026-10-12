@@ -1,15 +1,17 @@
-import { useDispatch } from 'react-redux';
-import { toggleTaskStatus } from '../../features/tasks/tasksSlice';
-import { formatDate, isOverdue } from '../../utils/taskUtils';
-import { PRIORITY_LABELS } from '../../constants';
-import type { Task } from '../../types/task';
-import { toast } from 'react-toastify';
-import './TaskCard.css';
+import { useDispatch } from "react-redux";
+import { toggleTaskStatus } from "../../features/tasks/tasksSlice";
+import { saveTaskToFirestore } from "../../hooks/useFirestoreTasks";
+import { formatDate, isOverdue } from "../../utils/taskUtils";
+import { PRIORITY_LABELS } from "../../constants";
+import type { Task } from "../../types/task";
+import { toast } from "react-toastify";
+import "./TaskCard.css";
 
 interface TaskCardProps {
   task: Task;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  userId: string;
   dragHandleProps?: React.HTMLAttributes<HTMLElement>;
   isDragging?: boolean;
 }
@@ -18,38 +20,37 @@ export default function TaskCard({
   task,
   onEdit,
   onDelete,
+  userId,
   dragHandleProps,
   isDragging = false,
 }: TaskCardProps) {
   const dispatch = useDispatch();
   const overdue = isOverdue(task.dueDate, task.status);
 
-  function handleToggle() {
+  async function handleToggle() {
+    const newStatus = task.status === "pending" ? "completed" : "pending";
     dispatch(toggleTaskStatus(task.id));
+    await saveTaskToFirestore(userId, { ...task, status: newStatus });
 
     const toastId = `toggle-${task.id}`;
-    const isCompleting = task.status === 'pending';
-    const message = isCompleting
-      ? 'Task marked as completed'
-      : 'Task marked as pending';
-    const type = isCompleting ? 'success' : 'info';
+    const message =
+      newStatus === "completed"
+        ? "Task marked as completed"
+        : "Task marked as pending";
+    const type = newStatus === "completed" ? "success" : "info";
 
     if (toast.isActive(toastId)) {
-      toast.update(toastId, {
-        render: message,
-        type,
-        autoClose: 2500,
-      });
+      toast.update(toastId, { render: message, type, autoClose: 2000 });
     } else {
-      toast[type](message, { toastId, autoClose: 2500 });
+      toast[type](message, { toastId, autoClose: 2000 });
     }
   }
 
   return (
     <div
       className={`task-card
-        ${task.status === 'completed' ? 'task-card--completed' : ''}
-        ${isDragging ? 'task-card--dragging' : ''}
+        ${task.status === "completed" ? "task-card--completed" : ""}
+        ${isDragging ? "task-card--dragging" : ""}
       `}
     >
       <div className="task-card__header">
@@ -57,6 +58,7 @@ export default function TaskCard({
           {dragHandleProps && (
             <span
               className="task-card__drag-handle"
+              aria-label="Drag to reorder"
               title="Drag to reorder"
               {...dragHandleProps}
             >
@@ -72,6 +74,7 @@ export default function TaskCard({
           <button
             className="task-item__action-btn"
             onClick={() => onEdit(task.id)}
+            aria-label="Edit task"
             title="Edit task"
           >
             <EditIcon />
@@ -79,6 +82,7 @@ export default function TaskCard({
           <button
             className="task-item__action-btn task-item__action-btn--danger"
             onClick={() => onDelete(task.id)}
+            aria-label="Delete task"
             title="Delete task"
           >
             <DeleteIcon />
@@ -94,23 +98,25 @@ export default function TaskCard({
 
       <div className="task-card__footer">
         <span
-          className={`task-card__due ${overdue ? 'task-item__due--overdue' : ''}`}
+          className={`task-card__due ${overdue ? "task-item__due--overdue" : ""}`}
         >
           <CalendarIcon />
-          {overdue ? 'Overdue · ' : ''}
+          {overdue ? "Overdue · " : ""}
           {formatDate(task.dueDate)}
         </span>
 
         <button
           className={`task-card__check-btn ${
-            task.status === 'completed' ? 'task-card__check-btn--done' : ''
+            task.status === "completed" ? "task-card__check-btn--done" : ""
           }`}
           onClick={handleToggle}
           title={
-            task.status === 'completed' ? 'Mark as pending' : 'Mark as completed'
+            task.status === "completed"
+              ? "Mark as pending"
+              : "Mark as completed"
           }
         >
-          {task.status === 'completed' ? '✓ Done' : 'Mark done'}
+          {task.status === "completed" ? "✓ Done" : "Mark done"}
         </button>
       </div>
     </div>
@@ -132,7 +138,16 @@ function DragIcon() {
 
 function EditIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M11 2l3 3-9 9H2v-3l9-9z" />
     </svg>
   );
@@ -140,7 +155,16 @@ function EditIcon() {
 
 function DeleteIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3,4 13,4" />
       <path d="M5 4V2h6v2" />
       <path d="M4 4l1 10h6l1-10" />
@@ -150,7 +174,14 @@ function DeleteIcon() {
 
 function CalendarIcon() {
   return (
-    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
       <rect x="1" y="3" width="14" height="12" rx="2" />
       <line x1="1" y1="7" x2="15" y2="7" />
       <line x1="5" y1="1" x2="5" y2="5" />

@@ -1,18 +1,20 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import TaskItem from './TaskItem';
-import type { Task } from '../../types/task';
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import TaskItem from "./TaskItem";
+import type { Task } from "../../types/task";
 
 interface SortableTaskItemProps {
   task: Task;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  userId: string;
 }
 
 export default function SortableTaskItem({
   task,
   onEdit,
   onDelete,
+  userId,
 }: SortableTaskItemProps) {
   const {
     attributes,
@@ -28,7 +30,7 @@ export default function SortableTaskItem({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    position: 'relative',
+    position: "relative",
     zIndex: isDragging ? 10 : undefined,
   };
 
@@ -38,6 +40,7 @@ export default function SortableTaskItem({
         task={task}
         onEdit={onEdit}
         onDelete={onDelete}
+        userId={userId}
         dragHandleRef={setActivatorNodeRef}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}

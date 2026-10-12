@@ -1,5 +1,7 @@
 .app-root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-bg);
 }
 
@@ -10,7 +12,23 @@
 }
 
 .app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding-bottom: var(--space-8);
+}
+
+.app-main > .app-container {
+  width: 100%;
+}
+
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
 }
 
 @media (max-width: 600px) {

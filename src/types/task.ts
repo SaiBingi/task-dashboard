@@ -1,18 +1,18 @@
-export type Priority = 'low' | 'medium' | 'high';
-export type Status = 'pending' | 'completed';
-export type ViewMode = 'list' | 'card';
-export type FilterStatus = 'all' | 'pending' | 'completed';
-export type FilterPriority = 'all' | 'low' | 'medium' | 'high';
+export type Priority = "low" | "medium" | "high";
+export type Status = "pending" | "completed";
+export type ViewMode = "list" | "card";
+export type FilterStatus = "all" | "pending" | "completed" | "overdue";
+export type FilterPriority = "all" | "low" | "medium" | "high";
 
 export interface Task {
   id: string;
   title: string;
   description: string;
   priority: Priority;
-  dueDate: string;       
+  dueDate: string;
   status: Status;
-  createdAt: string;     
-  order: number;         // for drag-and-drop ordering
+  createdAt: string;
+  order: number; // for drag-and-drop ordering
 }
 
 export interface TaskFormData {

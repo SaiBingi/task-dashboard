@@ -10,6 +10,39 @@
   gap: var(--space-4);
 }
 
+.tasklist-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-5);
+}
+
+.tasklist-pagination__button {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+}
+
+.tasklist-pagination__button:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+}
+
+.tasklist-pagination__button:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.tasklist-pagination__status {
+  min-width: 88px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
 .tasklist__empty {
   display: flex;
   flex-direction: column;

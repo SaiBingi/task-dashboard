@@ -1,15 +1,16 @@
-import './StatsBar.css';
-import { useSelector } from 'react-redux';
-import { selectTaskStats } from '../../features/tasks/tasksSelectors';
+import "./StatsBar.css";
+import { useSelector } from "react-redux";
+import { selectTaskStats } from "../../features/tasks/tasksSelectors";
 
 export default function StatsBar() {
-  const { total, pending, completed } = useSelector(selectTaskStats);
+  const { total, pending, completed, overdue } = useSelector(selectTaskStats);
 
   return (
     <div className="stats-bar app-container">
       <StatCard label="Total Tasks" value={total} variant="default" />
       <StatCard label="Pending" value={pending} variant="pending" />
       <StatCard label="Completed" value={completed} variant="completed" />
+      <StatCard label="Overdue" value={overdue} variant="overdue" />
     </div>
   );
 }
@@ -17,7 +18,7 @@ export default function StatsBar() {
 interface StatCardProps {
   label: string;
   value: number;
-  variant: 'default' | 'pending' | 'completed';
+  variant: "default" | "pending" | "completed";
 }
 
 function StatCard({ label, value, variant }: StatCardProps) {

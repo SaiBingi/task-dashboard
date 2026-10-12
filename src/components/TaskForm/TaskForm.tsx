@@ -1,43 +1,54 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addTask } from '../../features/tasks/tasksSlice';
-import { PRIORITY_OPTIONS } from '../../constants';
-import type { TaskFormData, Priority } from '../../types/task';
-import './TaskForm.css';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addTask } from "../../features/tasks/tasksSlice";
+import { selectAllTasks } from "../../features/tasks/tasksSelectors";
+import { PRIORITY_OPTIONS } from "../../constants";
+import { createTask } from "../../utils/taskUtils";
+import { saveTaskToFirestore } from "../../hooks/useFirestoreTasks";
+import type { TaskFormData } from "../../types/task";
+import "./TaskForm.css";
 
 interface TaskFormProps {
   onClose: () => void;
   onSuccess?: () => void;
+  userId: string;
 }
 
 const EMPTY_FORM: TaskFormData = {
-  title: '',
-  description: '',
-  priority: 'medium',
-  dueDate: '',
+  title: "",
+  description: "",
+  priority: "medium",
+  dueDate: "",
 };
 
-export default function TaskForm({ onClose, onSuccess }: TaskFormProps) {
+export default function TaskForm({
+  onClose,
+  onSuccess,
+  userId,
+}: TaskFormProps) {
   const dispatch = useDispatch();
+  const tasks = useSelector(selectAllTasks);
   const [form, setForm] = useState<TaskFormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<TaskFormData>>({});
 
   function validate(): boolean {
     const newErrors: Partial<TaskFormData> = {};
     if (!form.title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = "Title is required";
     } else if (form.title.trim().length < 3) {
-      newErrors.title = 'Title must be at least 3 characters';
+      newErrors.title = "Title must be at least 3 characters";
     }
     if (!form.dueDate) {
-      newErrors.dueDate = 'Due date is required';
+      newErrors.dueDate = "Due date is required";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -46,10 +57,16 @@ export default function TaskForm({ onClose, onSuccess }: TaskFormProps) {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+
+    const order = tasks.length;
+    const newTask = createTask(form, order);
+
     dispatch(addTask(form));
+    await saveTaskToFirestore(userId, newTask);
+
     onSuccess?.();
     onClose();
   }
@@ -64,7 +81,7 @@ export default function TaskForm({ onClose, onSuccess }: TaskFormProps) {
           id="title"
           name="title"
           type="text"
-          className={`form-input ${errors.title ? 'form-input--error' : ''}`}
+          className={`form-input ${errors.title ? "form-input--error" : ""}`}
           placeholder="e.g. Fix login page bug"
           value={form.title}
           onChange={handleChange}
@@ -118,10 +135,10 @@ export default function TaskForm({ onClose, onSuccess }: TaskFormProps) {
             id="dueDate"
             name="dueDate"
             type="date"
-            className={`form-input ${errors.dueDate ? 'form-input--error' : ''}`}
+            className={`form-input ${errors.dueDate ? "form-input--error" : ""}`}
             value={form.dueDate}
             onChange={handleChange}
-            min={new Date().toISOString().split('T')[0]}
+            min={new Date().toISOString().split("T")[0]}
           />
           {errors.dueDate && (
             <span className="form-error">{errors.dueDate}</span>

@@ -7,12 +7,19 @@
   flex-direction: column;
   height: 100%;
   gap: var(--space-3);
-  transition: box-shadow var(--transition), border-color var(--transition);
+  transition:
+    box-shadow var(--transition),
+    border-color var(--transition);
 }
 
 .task-card:hover {
   box-shadow: var(--shadow-sm);
   border-color: var(--color-border-strong);
+}
+
+.task-card__due.task-item__due--overdue {
+  color: var(--color-danger);
+  font-weight: 500;
 }
 
 .task-card--completed {
@@ -99,7 +106,9 @@
   color: var(--color-text-secondary);
   font-weight: 500;
   white-space: nowrap;
-  transition: background-color var(--transition), color var(--transition),
+  transition:
+    background-color var(--transition),
+    color var(--transition),
     border-color var(--transition);
 }
 
@@ -134,7 +143,9 @@
   color: var(--color-text-disabled);
   cursor: grab;
   opacity: 0.7;
-  transition: opacity var(--transition), color var(--transition);
+  transition:
+    opacity var(--transition),
+    color var(--transition);
   touch-action: none;
   padding: 2px;
 }

@@ -29,8 +29,14 @@
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
   outline: none;
+}
+
+[data-theme="dark"] .form-input[type="date"] {
+  color-scheme: dark;
 }
 
 .form-input:focus {
@@ -92,7 +98,9 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   border: 1px solid transparent;
-  transition: background-color var(--transition), border-color var(--transition),
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
     color var(--transition);
   white-space: nowrap;
 }
